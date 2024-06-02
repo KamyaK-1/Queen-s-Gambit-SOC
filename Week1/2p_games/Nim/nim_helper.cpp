@@ -55,29 +55,11 @@ int main()
             {
                 
                 mp[{i,j,k}]=!mp[{i,j}] || !mp[{i,k}] || !mp[{j,k}];
-                if (i==2 && j == 5 && k==6)
-                {
-                    if (!mp[{i,j}])
-                    {
-                        cout << i << j << endl;
-                    }
-                    if (!mp[{i,k}])
-                    {
-                        cout << i << k << endl;
-                    }
-                    if (!mp[{j,k}])
-                    {
-                        cout << j << k << endl;
-                    }
-                }
+                
                 for (int t = 1; t < i ; t++)
                 {
                     if (!mp[{t,j,k}])
                     {
-                        if (i==2 && j == 5 && k==6)
-                        {
-                            cout << t << " " << j << " " << k << endl;
-                        }
                         mp[{i,j,k}]=1;
                         break;
                     }
@@ -86,10 +68,6 @@ int main()
                 {
                     if (!mp[{i,t,k}])
                     {
-                        if (i==2 && j == 5 && k==6)
-                        {
-                            cout << i << " " << t << " " << k << endl;
-                        }
                         mp[{i,j,k}]=1;
                         break;
                     }
@@ -98,10 +76,6 @@ int main()
                 {
                     if (!mp[{i,j,t}])
                     {
-                        if (i==2 && j == 5 && k==6)
-                        {
-                            cout << i << " " << j << " " << t << endl;
-                        }
                         mp[{i,j,k}]=1;
                         break;
                     }
@@ -118,33 +92,11 @@ int main()
                 for (int a = k ; a<= 7 ; a++)
                 {
                     mp[{i,j,k,a}]=!mp[{i,j,k}] || !mp[{i,k,a}] || !mp[{j,k,a}] || !mp[{i,j,a}];
-                    if (i==1 && j==3 && k==5 && a==6)
-                        {
-                            if (!mp[{i,j,k}])
-                            {
-                                cout << i << j << k;
-                            }
-                            if (!mp[{i,k,a}])
-                            {
-                                cout << i << k << a;
-                            }
-                            if (!mp[{i,j,a}])
-                            {
-                                cout << i << j << a;
-                            }
-                            if (!mp[{j,k,a}])
-                            {
-                                cout << j << k << a;
-                            }
-                        }
+                
                     for (int t = 1; t < i && !mp[{i,j,k,a}] ; t++)
                     {
                         if (!mp[{t,j,k,a}])
                         {
-                            if (i==1 && j==3 && k==5 && a==6)
-                            {
-                                cout << t << " " << j << " " << k << " " << a << endl;
-                            }
                             mp[{i,j,k,a}]=1;
                             break;
                         }
@@ -153,10 +105,6 @@ int main()
                     {
                         if (!mp[{i,t,k,a}])
                         {
-                            if (i==1 && j==3 && k==5 && a==6)
-                            {
-                                cout << t << " " << j << " " << k << " " << a << endl;
-                            }
                             mp[{i,j,k,a}]=1;
                             break;
                         }
@@ -165,10 +113,6 @@ int main()
                     {
                         if (!mp[{i,j,t,a}])
                         {
-                            if (i==1 && j==3 && k==5 && a==6)
-                            {
-                                cout << t << " " << j << " " << k << " " << a << endl;
-                            }
                             mp[{i,j,k,a}]=1;
                             break;
                         }
@@ -177,10 +121,6 @@ int main()
                     {
                         if (!mp[{i,j,k,t}])
                         {
-                            if (i==1 && j==3 && k==5 && a==6)
-                            {
-                                cout << t << " " << j << " " << k << " " << a << endl;
-                            }
                             mp[{i,j,k,a}]=1;
                             break;
                         }
@@ -189,6 +129,4 @@ int main()
             }
         }
     }
-    cout << mp[{3,5,7}];
-    cout << mp[{2,4,5}];
 }
