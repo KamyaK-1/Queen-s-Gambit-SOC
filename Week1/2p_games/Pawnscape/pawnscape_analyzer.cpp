@@ -211,6 +211,6 @@ int main()
         cout << it;
     }
 }
-// leftmost mein output  0 
-// 2nd from left mein 0
-// middle mein 1
+// leftmost or rightmost ->  0 
+// If you push pawns second from the end -> 0
+// middle pawn -> 1
