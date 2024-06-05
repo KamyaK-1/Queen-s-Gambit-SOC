@@ -2,6 +2,7 @@ import json
 import copy  # use it for deepcopy if needed
 import math  # for math.inf
 import logging
+import random
 
 logging.basicConfig(format='%(levelname)s - %(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S',
                     level=logging.INFO)
@@ -10,6 +11,8 @@ logging.basicConfig(format='%(levelname)s - %(asctime)s - %(message)s', datefmt=
 # Mapping from histories (str) to probability distribution over actions
 strategy_dict_x = {}
 strategy_dict_o = {}
+results_x = {}
+results_o = {}
 
 
 class History:
@@ -74,28 +77,72 @@ class History:
         return board
 
     def is_win(self):
+        for row in range(3):
+            if self.board[row * 3] == self.board[row * 3 + 1] == self.board[row * 3 + 2] and self.board[row * 3] != '0':
+                if self.current_player() == self.board[row * 3]:
+                    return 1
+                else:
+                    return -1
+            
+        for column in range(3):
+            if self.board[column] == self.board[column + 3] == self.board[column + 6] and self.board[column] != '0':
+                if self.current_player() == self.board[column]:
+                    return 1
+                else:
+                    return -1
+        if self.board[0] == self.board[4] == self.board[8] and self.board[0] != '0':
+                if self.current_player() == self.board[0]:
+                    return 1
+                else:
+                    return -1
+        
+        if self.board[2] == self.board[4] == self.board[6] and self.board[2] != '0':
+                if self.current_player() == self.board[2]:
+                    return 1
+                else:
+                    return -1
+        return 0
         # check if the board position is a win for either players
         # Feel free to implement this in anyway if needed
-        pass
 
     def is_draw(self):
+        
+        for square in range(9):
+            if self.board[square] == '0':
+                return False
+        
+        return True
         # check if the board position is a draw
         # Feel free to implement this in anyway if needed
-        pass
+        
 
     def get_valid_actions(self):
+        empty_squares = []
+        for index in range(9):
+            if self.board[index] == '0':
+                empty_squares.append(index)
+
+        return empty_squares
         # get the empty squares from the board
         # Feel free to implement this in anyway if needed
-        pass
+        
 
     def is_terminal_history(self):
+
         # check if the history is a terminal history
         # Feel free to implement this in anyway if needed
         pass
 
     def get_utility_given_terminal_history(self):
+        winning = self.is_win()
+        if winning!=0:
+            return winning
+        if self.is_draw():
+            return 0
+        
+        return None
         # Feel free to implement this in anyway if needed
-        pass
+
 
     def update_history(self, action):
         # In case you need to create a deepcopy and update the history obj to get the next history object.
@@ -103,12 +150,100 @@ class History:
         pass
 
 
-def backward_induction(history_obj):
+def backward_induction(history_obj:History):
     """
     :param history_obj: Histroy class object
     :return: best achievable utility (float) for th current history_obj
     """
     global strategy_dict_x, strategy_dict_o
+
+    string_of_history = ""
+
+    for history in history_obj.history:
+        string_of_history = string_of_history + str(history)
+
+    if history_obj.current_player() == 'x' and string_of_history in strategy_dict_x.keys():
+        return results_x[string_of_history]
+    
+    if history_obj.current_player() == 'o' and string_of_history in strategy_dict_o.keys():
+        return results_o[string_of_history]
+    
+    result = history_obj.get_utility_given_terminal_history()
+
+
+    if result is None:
+
+        distribution = {str(i):0 for i in range(9)}
+        win_possibilities = []
+        draw_possibilities = []
+
+        for action in history_obj.get_valid_actions():
+            new_history = copy.copy(history_obj.history)
+            new_history.append(action)
+
+            result_at_child = backward_induction(History(new_history))
+
+            if result_at_child ==  -1:
+                win_possibilities.append(action)
+            
+            elif result_at_child == 0:
+                draw_possibilities.append(action)
+
+            else:
+                pass
+
+        
+        if len(win_possibilities) != 0:
+
+            for i in win_possibilities:
+                distribution[str(i)] = 1/len(win_possibilities)
+            
+         
+            if history_obj.current_player() == 'o':
+                    results_o[string_of_history] =  1
+                    strategy_dict_o[string_of_history] = distribution           
+            else:
+                    results_x[string_of_history] =  1
+                    strategy_dict_x[string_of_history] = distribution                
+    
+            return 1
+        
+        elif len(draw_possibilities) != 0:
+
+            for i in draw_possibilities:
+                distribution[str(i)] = 1/len(draw_possibilities)
+
+            if history_obj.current_player() == 'o':
+                    results_o[string_of_history] =  0
+                    strategy_dict_o[string_of_history] = distribution           
+            else:
+                    results_x[string_of_history] =  0
+                    strategy_dict_x[string_of_history] = distribution      
+            return 0
+        else:
+            length = len(history_obj.get_valid_actions())
+            for i in history_obj.get_valid_actions():
+                distribution[str(i)] = 1/length
+            distribution[str(random.choice(history_obj.get_valid_actions()))] = 1
+            if history_obj.current_player() == 'o':
+                    results_o[string_of_history] =  -1
+                    strategy_dict_o[string_of_history] = distribution           
+            else:
+                    results_x[string_of_history] =  -1
+                    strategy_dict_x[string_of_history] = distribution      
+            return -1
+
+
+    else:
+
+        if history_obj.current_player() == 'o':
+            results_o[string_of_history] = result
+        else:
+            results_x[string_of_history] = result
+
+        return result
+
+
     # TODO implement
     # (1) Implement backward induction for tictactoe
     # (2) Update the global variables strategy_dict_x or strategy_dict_o which are a mapping from histories to
