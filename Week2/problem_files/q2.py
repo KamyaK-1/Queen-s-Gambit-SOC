@@ -12,7 +12,6 @@ board_positions_val_dict = {}
 # Global variable to store the visited histories in the process of alpha beta pruning.
 visited_histories_list = []
 
-
 class History:
     def __init__(self, num_boards=2, history=None):
         """
@@ -159,23 +158,52 @@ class History:
         return boards_str
 
     def is_win(self):
+        for val in self.active_board_stats:
+            if val == 1:
+                return False
+        return True
         # Feel free to implement this in anyway if needed
-        pass
 
     def get_valid_actions(self):
+        
+        actions = list()
+
+        for board_number in range(self.num_boards):
+            if self.active_board_stats[board_number] == 1:
+
+                if self.boards[board_number][4] == '0':
+                    actions.append( 9*board_number + 4 )
+
+        for board_number in range(self.num_boards):
+            if self.active_board_stats[board_number] == 1:
+                for square in range(0,10,2):
+
+                    if square!=4:
+                        if self.boards[board_number][square] == '0':
+                            actions.append( 9*board_number + square )   
+
+        for board_number in range(self.num_boards):
+            if self.active_board_stats[board_number] == 1:
+                for square in range(1,9,2):
+                    if self.boards[board_number][square] == '0':
+                        actions.append( 9*board_number + square )   
+
+
         # Feel free to implement this in anyway if needed
-        pass
+        return actions
 
     def is_terminal_history(self):
         # Feel free to implement this in anyway if needed
         pass
 
     def get_value_given_terminal_history(self):
+        if self.is_win():
+            return self.current_player
+        
         # Feel free to implement this in anyway if needed
-        pass
 
 
-def alpha_beta_pruning(history_obj, alpha, beta, max_player_flag):
+def alpha_beta_pruning(history_obj:History, alpha, beta, max_player_flag:bool):
     """
         Calculate the maxmin value given a History object using alpha beta pruning. Use the specific move order to
         speedup (more pruning, less memory).
@@ -189,12 +217,34 @@ def alpha_beta_pruning(history_obj, alpha, beta, max_player_flag):
     # These two already given lines track the visited histories.
     global visited_histories_list
     visited_histories_list.append(history_obj.history)
+    
+    if history_obj.is_win():
+        return history_obj.current_player
+    if max_player_flag == True:
+        value = -math.inf
+    else:
+        value = math.inf
+    for action in history_obj.get_valid_actions():
+
+        new_history = copy.deepcopy(history_obj.history)
+        new_history.append(action)
+        new_history_obj = History(history_obj.num_boards , new_history)
+
+        val = alpha_beta_pruning(new_history_obj,alpha,beta,not max_player_flag)
+        if max_player_flag:
+            alpha = max(alpha,val)
+            value = max(value,val)
+        else:
+            beta = min(beta,val)
+            value = min(value,val)
+        if alpha >= beta:
+           break
     # TODO implement
-    return -2
+    return value
     # TODO implement
 
 
-def maxmin(history_obj, max_player_flag):
+def maxmin(history_obj:History, max_player_flag:bool):
     """
         Calculate the maxmin value given a History object using maxmin rule. Store the value of already visited
         board positions to speed up, avoiding recursive calls for a different history with the same board position.
@@ -205,9 +255,43 @@ def maxmin(history_obj, max_player_flag):
     # Global variable to keep track of visited board positions. This is a dictionary with keys as str version of
     # self.boards and value represents the maxmin value. Use the get_boards_str function in History class to get
     # the key corresponding to self.boards.
+    
     global board_positions_val_dict
+
     # TODO implement
-    return -2
+    boards_string = history_obj.get_boards_str()
+    
+
+    for shift in range(history_obj.num_boards):
+        shifted_string =  boards_string[ 9*shift : ] + boards_string[ : 9*shift]
+        if shifted_string in board_positions_val_dict.keys():
+            return board_positions_val_dict[shifted_string]
+    
+    if history_obj.is_win():
+        board_positions_val_dict[boards_string] = history_obj.current_player
+        return history_obj.current_player
+
+
+    for action in history_obj.get_valid_actions():
+        # print(action,boards_string)
+        new_history = copy.deepcopy(history_obj.history)
+        new_history.append(action)
+        new_history_obj = History(history_obj.num_boards , new_history)
+
+        val = maxmin(new_history_obj, not max_player_flag)
+
+        if max_player_flag == True:
+            if val == 2:
+                board_positions_val_dict[boards_string] = 2
+                return 2
+        else:
+            if val == 1:
+                board_positions_val_dict[boards_string] = 1
+                return 1
+            
+    board_positions_val_dict[boards_string] = 2 - int(max_player_flag)
+    
+    return 2 - int(max_player_flag)
     # TODO implement
 
 
@@ -226,3 +310,4 @@ if __name__ == "__main__":
     logging.info("maxmin memory")
     logging.info("maxmin value {}".format(maxmin(History(history=[], num_boards=2), True)))
     logging.info("end")
+    print(len(board_positions_val_dict))
