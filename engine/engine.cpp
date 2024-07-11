@@ -117,26 +117,64 @@ int get_move_from_book(Board &board)
 
     int left = 0 , right = opening_entries_count-1;
 
+    uint16_t poly_moves[100];
+    uint16_t weights[100];
+    int count = 0;
+
+    int min_index = -1;
     while (left < right)
     {
         int mid = (left+right)/2;
         uint64_t book_key = decode_key(entries[mid].key);
-        if (book_key >= key)
+        if (book_key == key)
         {
-           right = mid;
+            poly_moves[count] = bigEndianToLittleEndian16( entries[mid].move ) ;
+            weights[count++] = bigEndianToLittleEndian16( entries[mid].weight );
+            left = mid-1;
+            while (entries[mid].key == entries[left].key)
+            {
+                poly_moves[count] = bigEndianToLittleEndian16( entries[left].move ) ;
+                weights[count++] = bigEndianToLittleEndian16( entries[left].weight );
+                // cout << get_uci_from_polyglot_move(poly_moves[count-1]) << " " << weights[count-1] << "\n";
+                left--;
+            }
+            min_index = left+1;
+            right = mid+1;
+
+            // cout  << "Hi";
+            while (entries[mid].key == entries[right].key)
+            {
+                poly_moves[count] = bigEndianToLittleEndian16( entries[right].move ) ;
+                weights[count++] = bigEndianToLittleEndian16( entries[right].weight );
+                // cout << get_uci_from_polyglot_move(poly_moves[count-1]) << " " << weights[count-1] << "\n";
+                right++;
+            }
+
+            break;
         }
-        else 
+        else if (book_key < key)
         {
             left = mid+1;
         }
-        
+        else
+        {
+            right = mid-1;
+        }
     }
-    if (decode_key(entries[left].key) == key)
+    if (entries[left].key == key)
     {
-       return left;
+        poly_moves[count] = bigEndianToLittleEndian16(entries[left].move);
+        weights[count++] = bigEndianToLittleEndian16( entries[left].weight );
+        min_index = left;
     }
-    return -1;
-    
+    if (left!=right && entries[right].key == key)
+    {
+        poly_moves[count] = bigEndianToLittleEndian16(entries[right].move);
+        weights[count++] = bigEndianToLittleEndian16( entries[right].weight );
+        min_index = right;
+    }
+    // cout << min_index << count << "\n";
+    return min_index;
 }
 void free_book()
 {
@@ -223,9 +261,21 @@ void play(Board &board)
 int main()
 {
     chess::Board board = Board();
-    board.makeMove(uci::uciToMove(board,"e2e4"));
+    board.makeMove(uci::uciToMove(board,"c2c4"));
     init_book();
-    get_move_from_book(board);
+    while (true)
+    {
+        int index = get_move_from_book(board);
+        if (index == -1)
+        {
+            break;
+        }
+        else
+        {
+            cout << get_uci_from_polyglot_move(bigEndianToLittleEndian16( entries[index].move)) << "\n";
+            board.makeMove(uci::uciToMove(board,get_uci_from_polyglot_move(bigEndianToLittleEndian16( entries[index].move))));
+        }
+    }
     // play(board);
     
     free_book();
