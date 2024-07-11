@@ -202,13 +202,23 @@ int analyze(vector<vector<char> > &board,bool white_move, vector<int> &greatest_
 int main()
 {
     vector<int> greatest_move(4);
-    vector<vector<char> > board = {{'W','W','W','W','W'},{'*','*','*','*','*'},{'*','*','*','*','*'},{'*','*','*','*','*'},{'B','B','B','B','B'}};
-    //vector<vector<char> > board = {{'W','W','W','W'},{'*','*','*','*'},{'*','*','*','*'},{'B','B','B','B'}};
-    cout << analyze(board,true,greatest_move);
+    vector<vector<char> > board = {{'W','W','*','W','W'},{'*','*','W','*','*'},{'*','*','*','*','*'},{'*','*','*','*','*'},{'B','B','B','B','B'}};
+    //vector<vector<char> > board = {{'*','W','W','W'},{'W','*','*','*'},{'*','*','*','*'},{'B','B','B','B'}};
+    cout << analyze(board,false,greatest_move);
     cout << endl;
     for (auto it:greatest_move)
     {
         cout << it;
+    }
+    cout << endl;
+    for (auto it:board)
+    {
+        for (auto it1:it)
+        {
+            cout << it1;
+        }
+        cout << endl;
+    
     }
 }
 // leftmost or rightmost ->  0 

@@ -187,6 +187,306 @@ bool haswon(vector<vector<int>> &board,int turn,int n){
         return false;
     }
 }
+int game_ends(vector<vector<int> > &board ,bool white_move , bool first_move )
+{
+
+    if (first_move)
+    {
+
+        if (haswon(board,white_move,board.size()))
+        {
+            cout << "1vdjbv" << endl;
+            return 1;
+        }
+        vector<pair<pair<int,int>,pair<int,int> > > t = valid_moves(board,white_move,board.size());
+        if (t.size() == 0)
+        {
+            cout << "0vdjbv" << endl;
+            return 0;
+        }
+        return 2;
+
+    }
+    if (haswon1(board,white_move,board.size()))
+    {
+        cout << "-1vdjbv" << endl;
+        return -1;
+    }
+    vector<pair<pair<int,int>,pair<int,int> > > t = valid_moves1(board,white_move,board.size());
+        if (t.size() == 0)
+        {cout << "000" << endl;
+            return 0;
+        }
+        return 2;
+}
+int analyze(vector<vector<int> > &board,bool white_move, pair<pair<int,int> , pair<int,int> > &greatest_move,bool first_move)
+{
+    int n = board.size();
+    // board is a list of list and white_move is a bool variable'''
+    int ans = game_ends(board,white_move,first_move);
+    cout << ans << "Hi" << endl;
+    if (ans!=2) return ans;
+    if (first_move)
+    {
+        if (white_move)
+    {
+        int temp = -1;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++){
+                if (board[i][j] == white)
+                {
+                    board[i][j] = blank;
+                    if (board[i-1][j] == blank)
+                    {
+                        board[i-1][j] = white;
+                        int t= analyze(board,!white_move,greatest_move,first_move);
+                        if (temp < t)
+                        {
+                            temp = t;
+                            greatest_move = {{i,j},{i-1,j}};
+                        }
+                        board[i-1][j] = blank;
+                        if (temp==1)
+                        {
+                            board[i][j] = white;
+                            return 1;
+                            
+                        }
+                    }
+                        
+                    if (j>0 and board[i-1][j-1]==black)
+                    {
+                        board[i-1][j-1] = white;
+                        int t= analyze(board,! white_move,greatest_move,first_move);
+                        if (temp < t)
+                        {
+                            temp = t;
+                            greatest_move = {{i,j},{i-1,j-1}};
+                        }
+                        board[i-1][j-1] = black;
+                        if (temp==1)
+                        {
+                            board[i][j] = white;
+                            return 1;
+                        }
+                    }
+                    
+                        
+                    if (j!=n-1 and board[i-1][j+1]==black )
+                    {
+                        board[i-1][j+1] = white;
+                        
+                        int t= analyze(board,! white_move,greatest_move,first_move);
+                        if (temp < t)
+                        {
+                            temp = t;
+                            greatest_move = {{i,j},{i-1,j+1}};
+                        }
+                        board[i-1][j+1] = black;
+                        if (temp==1)
+                        {
+                            board[i][j] = white;
+                            return 1;
+                        }
+                    }
+                        
+                    board[i][j] = white;
+                }
+            }
+        }
+        
+        return temp;
+    }
+    int temp = 1;
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < n; j++){
+            if (board[i][j] == black)
+            {
+                board[i][j] = blank;
+                if (board[i+1][j] == blank)
+                {
+                    board[i+1][j] = black;
+                    int t = analyze(board,! white_move,greatest_move,first_move);
+                    if (temp > t)
+                    {
+                        temp = t;
+                        greatest_move = {{i,j},{i+1,j}};
+                    }
+                    board[i+1][j] = blank;
+                    if (temp==-1)
+                    {
+                        board[i][j] = black;
+                        return -1;
+                    }
+                }
+                if (j>0 and board[i+1][j-1]==white)
+                {
+                    board[i+1][j-1] = black;
+                    int t= analyze(board,! white_move,greatest_move,first_move);
+                    if (temp > t)
+                    {
+                        temp = t;
+                        greatest_move = {{i,j},{i+1,j-1}};
+                    }
+                    board[i+1][j-1] = white;
+                    if (temp==-1)
+                    {
+                        board[i][j] = black;
+                        return -1;
+                    }
+                }
+                if (j!=n-1 and board[i+1][j+1]==white )
+                {
+                    board[i+1][j+1] = black;
+                    int t= analyze(board,! white_move,greatest_move,first_move);
+                    if (temp > t)
+                    {
+                        temp = t;
+                        greatest_move = {{i,j},{i+1,j+1}};
+                    }
+                    board[i+1][j+1] = white;  
+                    if (temp==-1)
+                    {
+                        board[i][j] = black;
+                        return -1;
+                    }   
+                }
+                board[i][j] = black;
+            }
+        }
+}
+    return temp;
+    }
+    if (white_move)
+    {
+        int temp = -1;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++){
+                if (board[i][j] == white)
+                {
+                    board[i][j] = blank;
+                    if (board[i+1][j] == blank)
+                    {
+                        board[i+1][j] = white;
+                        int t= analyze(board,!white_move,greatest_move,first_move);
+                        if (temp < t)
+                        {
+                            temp = t;
+                            greatest_move = {{i,j},{i+1,j}};
+                        }
+                        board[i+1][j] = blank;
+                        if (temp==1)
+                        {
+                            board[i][j] = white;
+                            return 1;
+                            
+                        }
+                    }
+                        
+                    if (j>0 and board[i+1][j-1]==black)
+                    {
+                        board[i+1][j-1] = white;
+                        int t= analyze(board,! white_move,greatest_move,first_move);
+                        if (temp < t)
+                        {
+                            temp = t;
+                            greatest_move = {{i,j},{i+1,j-1}};
+                        }
+                        board[i+1][j-1] = black;
+                        if (temp==1)
+                        {
+                            board[i][j] = white;
+                            return 1;
+                        }
+                    }
+                    
+                        
+                    if (j!=n-1 and board[i+1][j+1]==black )
+                    {
+                        board[i+1][j+1] = white;
+                        
+                        int t= analyze(board,! white_move,greatest_move,first_move);
+                        if (temp < t)
+                        {
+                            temp = t;
+                            greatest_move = {{i,j},{i+1,j+1}};
+                        }
+                        board[i+1][j+1] = black;
+                        if (temp==1)
+                        {
+                            board[i][j] = white;
+                            return 1;
+                        }
+                    }
+                        
+                    board[i][j] = white;
+                }
+            }
+        }
+        
+        return temp;
+    }
+
+    int temp = 1;
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < n; j++){
+            if (board[i][j] == black)
+            {
+                board[i][j] = blank;
+                if (board[i-1][j] == blank)
+                {
+                    board[i-1][j] = black;
+                    int t = analyze(board,! white_move,greatest_move,first_move);
+                    if (temp > t)
+                    {
+                        temp = t;
+                        greatest_move = {{i,j},{i-1,j}};
+                    }
+                    board[i-1][j] = blank;
+                    if (temp==-1)
+                    {
+                        board[i][j] = black;
+                        return -1;
+                    }
+                }
+                if (j>0 and board[i-1][j-1]==white)
+                {
+                    board[i-1][j-1] = black;
+                    int t= analyze(board,! white_move,greatest_move,first_move);
+                    if (temp > t)
+                    {
+                        temp = t;
+                        greatest_move = {{i,j},{i-1,j-1}};
+                    }
+                    board[i-1][j-1] = white;
+                    if (temp==-1)
+                    {
+                        board[i][j] = black;
+                        return -1;
+                    }
+                }
+                if (j!=n-1 and board[i-1][j+1]==white )
+                {
+                    board[i-1][j+1] = black;
+                    int t= analyze(board,! white_move,greatest_move,first_move);
+                    if (temp > t)
+                    {
+                        temp = t;
+                        greatest_move = {{i,j},{i-1,j+1}};
+                    }
+                    board[i-1][j+1] = white;  
+                    if (temp==-1)
+                    {
+                        board[i][j] = black;
+                        return -1;
+                    }   
+                }
+                board[i][j] = black;
+            }
+        }
+}
+    return temp;
+}
 int main(){
     int n;
     cout<<"Enter the size of the board(<=10)"<<endl;
@@ -215,29 +515,33 @@ int main(){
             while(1==1){
                 cout<<"Enter your move as white"<<endl;
                 pair<pair<int,int>,pair<int,int>> a;
-                string s;
-                cin>>s;
-                a.first.first=s[0]-48;
-                a.first.second=s[1]-48;
-                a.second.first=s[2]-48;
-                a.second.second=s[3]-48;
-                for(int i=0;i<moves1.size();i++){
-                    if(moves1[i].first.first==a.first.first && moves1[i].first.second==a.first.second && moves1[i].second.first==a.second.first && moves1[i].second.second==a.second.second){
-                        make_move(board,a);
-                        print_board(board,n);
-                        flag=1;
-                        break;
-                    }
-                    else{
-                        continue;
-                    }
-                }
-                if(flag==0){
-                    cout<<"Invalid move,try again"<<endl;
-                }
-                else{
-                    break;
-                }
+                cout << analyze(board,true,a,true);
+                cout << a.first.first  << a.first.second << a.second.first <<a.second.second;
+                // string s;
+                // cin>>s;
+                // a.first.first=s[0]-48;
+                // a.first.second=s[1]-48;
+                // a.second.first=s[2]-48;
+                // a.second.second=s[3]-48;
+                // for(int i=0;i<moves1.size();i++){
+                //     if(moves1[i].first.first==a.first.first && moves1[i].first.second==a.first.second && moves1[i].second.first==a.second.first && moves1[i].second.second==a.second.second){
+                //         make_move(board,a);
+                //         print_board(board,n);
+                //         flag=1;
+                //         break;
+                //     }
+                //     else{
+                //         continue;
+                //     }
+                // }
+                // if(flag==0){
+                //     cout<<"Invalid move,try again"<<endl;
+                // }
+                // else{
+                //     break;
+                // }
+                break;
+               
             }
 ////////////////////////////////////////////////////////////////end////////////////////////////////////////////////////////////////////
             if(haswon(board,white,n)==true){
@@ -252,6 +556,7 @@ int main(){
             }
             flag=0;
             while(1==1){
+                print_board(board,n);
                 cout<<"Enter your move as black"<<endl;
                 pair<pair<int,int>,pair<int,int>> a;
                 string s;

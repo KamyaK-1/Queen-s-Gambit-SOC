@@ -165,32 +165,33 @@ class History:
         # Feel free to implement this in anyway if needed
 
     def get_valid_actions(self):
-        
-        actions = list()
-
-        for board_number in range(self.num_boards):
-            if self.active_board_stats[board_number] == 1:
-
-                if self.boards[board_number][4] == '0':
-                    actions.append( 9*board_number + 4 )
-
-        for board_number in range(self.num_boards):
-            if self.active_board_stats[board_number] == 1:
-                for square in range(0,10,2):
-
-                    if square!=4:
-                        if self.boards[board_number][square] == '0':
-                            actions.append( 9*board_number + square )   
-
-        for board_number in range(self.num_boards):
-            if self.active_board_stats[board_number] == 1:
-                for square in range(1,9,2):
-                    if self.boards[board_number][square] == '0':
-                        actions.append( 9*board_number + square )   
-
-
-        # Feel free to implement this in anyway if needed
-        return actions
+        valid_actions = []
+        for i in range(self.num_boards):
+            if self.active_board_stats[i]:
+                for j in range(9):
+                    if self.boards[i][j] == '0':
+                        valid_actions.append(i * 9 + j)
+        new_valid_actions = []
+        for i in range(len(valid_actions)):
+            if valid_actions[i] in [9*j + 4 for j in range(self.num_boards)]:
+                new_valid_actions.append(valid_actions[i])
+        for i in range(len(valid_actions)):
+            corner_list = []
+            corner_list.extend([9*j for j in range(self.num_boards)])
+            corner_list.extend([9*j + 2 for j in range(self.num_boards)])
+            corner_list.extend([9*j + 6 for j in range(self.num_boards)])
+            corner_list.extend([9*j + 8 for j in range(self.num_boards)])
+            if valid_actions[i] in corner_list:
+                new_valid_actions.append(valid_actions[i])
+        for i in range(len(valid_actions)):
+            corner_list = []
+            corner_list.extend([9*j for j in range(self.num_boards)])
+            corner_list.extend([9*j + 2 for j in range(self.num_boards)])
+            corner_list.extend([9*j + 6 for j in range(self.num_boards)])
+            corner_list.extend([9*j + 8 for j in range(self.num_boards)])
+            if not (valid_actions[i] in corner_list or valid_actions[i] in [9*j + 4 for j in range(self.num_boards)]):
+                new_valid_actions.append(valid_actions[i])
+        return new_valid_actions
 
     def is_terminal_history(self):
         # Feel free to implement this in anyway if needed
@@ -216,8 +217,11 @@ def alpha_beta_pruning(history_obj:History, alpha, beta, max_player_flag:bool):
     """
     # These two already given lines track the visited histories.
     global visited_histories_list
+    # boards_string = history_obj.get_boards_str()
+
     visited_histories_list.append(history_obj.history)
-    
+    # if boards_string in board_positions_val_dict.keys():
+    #     return board_positions_val_dict[boards_string]
     if history_obj.is_win():
         return history_obj.current_player
     if max_player_flag == True:
@@ -239,7 +243,9 @@ def alpha_beta_pruning(history_obj:History, alpha, beta, max_player_flag:bool):
             value = min(value,val)
         if alpha >= beta:
            break
+    
     # TODO implement
+    # results_of_alpha_beta[boards_string] = value
     return value
     # TODO implement
 
@@ -260,13 +266,13 @@ def maxmin(history_obj:History, max_player_flag:bool):
 
     # TODO implement
     boards_string = history_obj.get_boards_str()
-    
+
 
     for shift in range(history_obj.num_boards):
         shifted_string =  boards_string[ 9*shift : ] + boards_string[ : 9*shift]
         if shifted_string in board_positions_val_dict.keys():
             return board_positions_val_dict[shifted_string]
-    
+
     if history_obj.is_win():
         board_positions_val_dict[boards_string] = history_obj.current_player
         return history_obj.current_player
@@ -304,10 +310,10 @@ def solve_alpha_beta_pruning(history_obj, alpha, beta, max_player_flag):
 if __name__ == "__main__":
     logging.info("start")
     logging.info("alpha beta pruning")
-    value, visited_histories = solve_alpha_beta_pruning(History(history=[], num_boards=2), -math.inf, math.inf, True)
+    value, visited_histories = solve_alpha_beta_pruning(History(history=[], num_boards=1), -math.inf, math.inf, True)
     logging.info("maxmin value {}".format(value))
     logging.info("Number of histories visited {}".format(len(visited_histories)))
     logging.info("maxmin memory")
-    logging.info("maxmin value {}".format(maxmin(History(history=[], num_boards=2), True)))
+    logging.info("maxmin value {}".format(maxmin(History(history=[], num_boards=1), True)))
     logging.info("end")
     print(len(board_positions_val_dict))
