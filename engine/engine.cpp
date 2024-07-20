@@ -102,7 +102,6 @@ string get_uci_from_polyglot_move(int move);
 uint16_t bigEndianToLittleEndian16(uint16_t key);
 uint64_t decode_key(uint64_t key);
 void init_book();
-int quiescence(int alpha , int beta, Board &board);
 void search_position(Board &board);
 int alpha_beta(int alpha, int beta, int depth, Board & board);
 int evaluate(Board &board);
@@ -737,14 +736,7 @@ void search_position(Board &board)
     cout << "Number of nodes visited is " << num_nodes << "\n";
 }
 
-int quiescence(int alpha , int beta, Board &board)
-{
-    if (board.isHalfMoveDraw() || board.isRepetition(2))
-    {
-        return 0;
-    }
-    return 0;
-}
+
 
 void init_book()
 {
@@ -984,8 +976,8 @@ void play(Board &board)
 int main()
 {
     init();
-    string fen_str = "r1bqkb1r/ppp2ppp/5n2/4p3/4P3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 7";
-    chess::Board board = Board();
+    string fen_str = "r1b1kb1r/ppp1pppp/2n5/q2P4/4pB2/2P1Q3/P3PPPP/R3KBNR b KQkq - 0 11";
+    chess::Board board = Board(fen_str);
     
     
     init_book();
