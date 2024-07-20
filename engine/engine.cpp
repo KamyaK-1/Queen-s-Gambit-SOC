@@ -107,7 +107,7 @@ int alpha_beta(int alpha, int beta, int depth, Board & board);
 int evaluate(Board &board);
 bool game_ends(const Board &board);
 // void print_result(const Board &board, bool engine_move);
-// void reset(pv_table_entry *table,int num_entries);
+
 
 void init()
 {
